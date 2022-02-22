@@ -13,39 +13,52 @@ namespace Module_8
                 Console.WriteLine($"По данному адресу {path}, папка {directory.Name} не существует .");
             else
             {
-                DirectoryInfo[] dirs = directory.GetDirectories();
+                DirectoryInfo[] dirs = directory.GetDirectories();                
                 foreach (DirectoryInfo dir in dirs)
                 {
-                    try
+                    TimeSpan timeDifference = DateTime.Now - dir.LastWriteTime;
+                    if (timeDifference > TimeSpan.FromMinutes(30))
                     {
-                        Console.WriteLine("Подкаталог:");
-                        Console.WriteLine(dir.FullName);
-                        dir.Delete(true);
-                        Console.WriteLine($"Подкаталог удален...{Environment.NewLine}");
+                        try
+                        {
+                            Console.WriteLine("Подкаталог:");
+                            Console.WriteLine(dir.FullName);
+                            Console.WriteLine("Время в течении которого каталог не использовался {0:f0} минут.",
+                                              timeDifference.TotalMinutes);
+                            dir.Delete(true);
+                            Console.WriteLine($"Подкаталог удален...{Environment.NewLine}");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Ошибка: {e.Message}{Environment.NewLine}");
+                        }
+                        continue;
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Ошибка: {0}", e.Message);
-                    }
-                    continue;
                 }
 
                 Console.WriteLine();
                 FileInfo[] files = directory.GetFiles();
                 foreach (FileInfo file in files)
                 {
-                    try
+                    TimeSpan timeDifference = DateTime.Now - file.LastWriteTime;
+                    if (timeDifference > TimeSpan.FromMinutes(30))
                     {
-                        Console.WriteLine("Файл:");
-                        Console.WriteLine(file.FullName);
-                        file.Delete();
-                        Console.WriteLine($"Файл удален...{Environment.NewLine}");
+                        try
+                        {
+                            Console.WriteLine("Файл:");
+                            Console.WriteLine(file.FullName);
+                            Console.WriteLine("Время в течении которого файл не использовался {0:f0} минут.",
+                                              timeDifference.TotalMinutes);
+                            file.Delete();
+                            Console.WriteLine($"Файл удален...{Environment.NewLine}");
+                        }
+                        catch (Exception e) { Console.WriteLine($"Ошибка: {e.Message}{Environment.NewLine}"); }
+                        continue;
                     }
-                    catch (Exception e) { Console.WriteLine("Ошибка: {0}", e.Message); }
-                    continue;
                 }
             }
-            Console.WriteLine($"{Environment.NewLine}Все доступные файлы и подкаталоги удалены из каталога \"TEMP\"...");
+            Console.WriteLine($"{Environment.NewLine}Все доступные файлы и подкаталоги, не используемые в течении 30 минут," +
+                              $" удалены из каталога \"TEMP\"...");
 
             Console.ReadKey();            
         }
